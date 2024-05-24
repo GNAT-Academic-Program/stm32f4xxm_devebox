@@ -1,0 +1,37 @@
+with "config/stm32f4xxm_devebox_config.gpr";
+with "config/stm32_hal_config.gpr";
+project Stm32f4xxm_Devebox is
+
+   for Target use "arm-eabi";
+   for Runtime ("Ada") use "light-tasking-stm32f4";
+
+   for Library_Name use "Stm32f4xxm_Devebox";
+   for Library_Version use Project'Library_Name & ".so." & Stm32f4xxm_Devebox_Config.Crate_Version;
+
+   for Source_Dirs use ("src/", 
+                        "src/memory/W25Q16",
+                        "src/sdcard",
+                        "config/");
+
+   for Object_Dir use "obj/" & Stm32f4xxm_Devebox_Config.Build_Profile;
+   for Create_Missing_Dirs use "True";
+   for Library_Dir use "lib";
+
+   type Library_Type_Type is ("relocatable", "static", "static-pic");
+   Library_Type : Library_Type_Type :=
+     external ("STM32F4XXM_DEVEBOX_LIBRARY_TYPE", external ("LIBRARY_TYPE", "static"));
+   for Library_Kind use Library_Type;
+
+   package Compiler is
+      for Default_Switches ("Ada") use Stm32f4xxm_Devebox_Config.Ada_Compiler_Switches;
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es"); --  Symbolic traceback
+   end Binder;
+
+   package Install is
+      for Artifacts (".") use ("share");
+   end Install;
+
+end Stm32f4xxm_Devebox;
